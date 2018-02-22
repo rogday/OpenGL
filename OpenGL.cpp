@@ -53,15 +53,17 @@ int main() {
 	float triangle[] = {
 		-0.5f, -0.5f, 0.0f, // bottom left
 		0.5f,  -0.5f, 0.0f, // bottom right
-		0.0f,  0.5f,  0.0f  // top
+		-0.5f, 0.5f,  0.0f, // top left
+		0.5f,  0.5f,  0.0f  // top right
 	};
 
+	uint indeces[] = {0, 1, 2, 1, 2, 3};
+
 	uint VBO;
+	uint EBO;
 
 	glGenBuffers(1, &VBO);
-	// glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle,
-	// GL_STATIC_DRAW);
+	glGenBuffers(1, &EBO);
 
 	// vertex shader
 	std::string vertexShaderSourceString;
@@ -91,18 +93,23 @@ int main() {
 	glDeleteShader(fragmentShader);
 	glUseProgram(shaderProgram);
 
-	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-	//					  (void *)0);
-	// glEnableVertexAttribArray(0);
-
 	uint VAO;
+
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
+
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indeces), indeces,
+				 GL_STATIC_DRAW);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
 						  (void *)0);
 	glEnableVertexAttribArray(0);
+
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.2f, 0.5f, 0.1f, 1.0f);
@@ -110,7 +117,8 @@ int main() {
 
 		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 
 		processEvents(window);
 
