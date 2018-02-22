@@ -25,6 +25,11 @@ const GLchar *getShaderSource(std::string &ShaderSourceString,
 }
 
 int main() {
+	/*	TODO:
+		- ShaderManager(which can add shaders in his program and then exec it)
+		- Polygon(which can be created from array of indices and drawn)
+		? Concave Polygon(trianglulation is codetime-consuming, fuck it)
+	*/
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
