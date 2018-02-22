@@ -50,20 +50,8 @@ int main() {
 	glViewport(0, 0, 800, 600);
 	glfwSetWindowSizeCallback(window, resize);
 
-	float triangle[] = {
-		-0.5f, -0.5f, 0.0f, // bottom left
-		0.5f,  -0.5f, 0.0f, // bottom right
-		-0.5f, 0.5f,  0.0f, // top left
-		0.5f,  0.5f,  0.0f  // top right
-	};
-
-	uint indeces[] = {0, 1, 2, 1, 2, 3};
-
-	uint VBO;
-	uint EBO;
-
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	char infoLog[512];
+	int success;
 
 	// vertex shader
 	std::string vertexShaderSourceString;
@@ -74,6 +62,13 @@ int main() {
 	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
 	glCompileShader(vertexShader);
 
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
+		std::cout << "vertexShader compile error.\n" << infoLog << std::endl;
+		return -1;
+	}
+
 	// fragment shader
 	std::string fragmentShaderSourceString;
 	const GLchar *fragmentShaderSource =
@@ -83,19 +78,46 @@ int main() {
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
 	glCompileShader(fragmentShader);
 
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
+		std::cout << "fragmentShader compile error.\n" << infoLog << std::endl;
+		return -1;
+	}
+
 	// shader program
 	uint shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
 
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
+		std::cout << "Link error.\n" << infoLog << std::endl;
+		return -1;
+	}
+
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-	glUseProgram(shaderProgram);
 
-	uint VAO;
+	float triangle[] = {
+		-0.5f, -0.5f, 0.0f, // bottom left
+		0.5f,  -0.5f, 0.0f, // bottom right
+		-0.5f, 0.5f,  0.0f, // top left
+		0.5f,  0.5f,  0.0f  // top right
+	};
+
+	uint indeces[] = {0, 1, 2, 1, 2, 3};
+
+	// Vertex Array Object & Vertex Buffer Object & Element Buffer Object
+	uint VAO, VBO, EBO; // VAO contains VBO & EBO, VBO is for actual vertices,
+						// EBO is for thier indices
 
 	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -116,6 +138,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shaderProgram);
+
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
