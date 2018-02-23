@@ -96,6 +96,7 @@ int main() {
 
 		shdr.apply();
 		shdr.setFloat("time", glfwGetTime());
+		shdr.setFloat("offset", sin(glfwGetTime()));
 
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
