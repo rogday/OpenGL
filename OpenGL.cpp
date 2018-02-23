@@ -1,5 +1,6 @@
 #include <glad/glad.h>
 
+#include "Shader.h"
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <fstream>
@@ -16,18 +17,9 @@ void processEvents(GLFWwindow *window) {
 		glfwSetWindowShouldClose(window, true);
 }
 
-const GLchar *getShaderSource(std::string &ShaderSourceString,
-							  std::string &&filename) {
-	std::ifstream ShaderFile(filename);
-	ShaderSourceString.assign((std::istreambuf_iterator<char>(ShaderFile)),
-							  (std::istreambuf_iterator<char>()));
-
-	return (const GLchar *)ShaderSourceString.c_str();
-}
-
 int main() {
 	/*	TODO:
-		- ShaderManager(which can add shaders in his program and then exec it)
+		+ ShaderManager(which can add shaders in his program and then exec it)
 		- Polygon(which can be created from array of indices and drawn)
 		? Concave Polygon(trianglulation is codetime-consuming, fuck it)
 	*/
@@ -55,57 +47,6 @@ int main() {
 
 	glViewport(0, 0, 800, 600);
 	glfwSetWindowSizeCallback(window, resize);
-
-	char infoLog[512];
-	int success;
-
-	// vertex shader
-	std::string vertexShaderSourceString;
-	const GLchar *vertexShaderSource =
-		getShaderSource(vertexShaderSourceString, "vertexShader.vert");
-
-	uint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-	glCompileShader(vertexShader);
-
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-		std::cout << "vertexShader compile error.\n" << infoLog << std::endl;
-		return -1;
-	}
-
-	// fragment shader
-	std::string fragmentShaderSourceString;
-	const GLchar *fragmentShaderSource =
-		getShaderSource(fragmentShaderSourceString, "fragmentShader.frag");
-
-	uint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-		std::cout << "fragmentShader compile error.\n" << infoLog << std::endl;
-		return -1;
-	}
-
-	// shader program
-	uint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-		std::cout << "Link error.\n" << infoLog << std::endl;
-		return -1;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
 
 	float triangle[] = {
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
@@ -143,6 +84,8 @@ int main() {
 
 	glBindVertexArray(0);
 
+	Shader shdr("vertexShader.vert", "fragmentShader.frag");
+
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -151,10 +94,8 @@ int main() {
 		glClearColor(0.2f, 0.5f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
-
-		int time = glGetUniformLocation(shaderProgram, "time");
-		glUniform1f(time, glfwGetTime());
+		shdr.apply();
+		shdr.setFloat("time", glfwGetTime());
 
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
