@@ -16,6 +16,6 @@ void main(){
 
 	pos.xy = mat2(cos, -sin, sin, cos)*pos.xy;
 
-	position = gl_Position = vec4(pos.x + offset, pos.y, pos.z, 1.0);
+	position = gl_Position = vec4(pos.xyz, 1.0);
 	aCol = ourColor;
 }
