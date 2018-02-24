@@ -1,9 +1,11 @@
 #version 330 core
 
 layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 ourColor;
+layout(location = 1) in vec3 aColor;
+layout(location = 2) in vec2 aTextCoord;
 
 out vec3 aCol;
+out vec2 TextCoord;
 out vec4 position;
 
 uniform float offset;
@@ -14,8 +16,9 @@ void main(){
 	float cos = sqrt(1 - pow(offset, 2));
 	float sin = offset;
 
-	pos.xy = mat2(cos, -sin, sin, cos)*pos.xy;
+	//pos.xy = mat2(cos, -sin, sin, cos)*pos.xy;
 
 	position = gl_Position = vec4(pos.xyz, 1.0);
-	aCol = ourColor;
+	aCol = aColor;
+	TextCoord = aTextCoord;
 }
