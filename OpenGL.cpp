@@ -30,7 +30,7 @@ int main() {
 		window.clear(0.2, 0.3, 0.7);
 
 		shdr.apply();
-		shdr.setFloat("offset", sin(glfwGetTime() * 4));
+		shdr.setFloat("time", glfwGetTime());
 
 		poly.draw();
 
