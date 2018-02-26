@@ -2,6 +2,13 @@
 #include "Shader.h"
 #include "Window.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 #include <cmath>
 #include <iostream>
 
@@ -20,6 +27,7 @@ int main() {
 	Polygon poly(triangle, indices, 4, "container.jpg");
 
 	Shader shdr("vertexShader.vert", "fragmentShader.frag");
+	/* call apply() method before setting uniforms! */
 
 	// shdr.setInt("texture1", 0);
 	// shdr.setInt("texture2", 1);
@@ -29,8 +37,18 @@ int main() {
 
 		window.clear(0.2, 0.3, 0.7);
 
+		auto Mouse = window.getMouse();
+		auto Size = window.getSize();
+
+		glm::quat Quaternion =
+			glm::angleAxis(10.0f, glm::vec3((Mouse.x / Size.x) / sqrt(2),
+											(Mouse.y / Size.y) / sqrt(2), 0.0));
+		glm::mat4 R = glm::toMat4(Quaternion);
+
 		shdr.apply();
-		shdr.setFloat("time", glfwGetTime());
+
+		uint Rloc = glGetUniformLocation(shdr.getID(), "R");
+		glUniformMatrix4fv(Rloc, 1, GL_FALSE, glm::value_ptr(R));
 
 		poly.draw();
 

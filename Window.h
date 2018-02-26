@@ -3,8 +3,14 @@
 #include <glad/glad.h>
 
 #include <GLFW/glfw3.h>
+#include <functional>
 #include <iostream>
 #include <string>
+
+template <class T> struct Pos {
+	T x;
+	T y;
+};
 
 class Window {
   private:
@@ -64,6 +70,18 @@ class Window {
 	void clear(float a, float b, float c) {
 		glClearColor(a, b, c, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	Pos<double> getMouse() {
+		double x, y;
+		glfwGetCursorPos(window, &x, &y);
+		return {x, y};
+	}
+
+	Pos<int> getSize() {
+		int x, y;
+		glfwGetWindowSize(window, &x, &y);
+		return {x, y};
 	}
 
 	~Window() { glfwTerminate(); }

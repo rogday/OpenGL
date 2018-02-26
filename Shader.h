@@ -82,4 +82,6 @@ class Shader {
 		int variable = glGetUniformLocation(shaderProgram, name.c_str());
 		glUniform1i(variable, a);
 	}
+
+	uint getID() { return shaderProgram; }
 };
