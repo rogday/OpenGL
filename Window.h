@@ -69,7 +69,7 @@ class Window {
 
 	void clear(float a, float b, float c) {
 		glClearColor(a, b, c, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	Pos<double> getMouse() {
